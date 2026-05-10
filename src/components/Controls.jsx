@@ -1,6 +1,7 @@
 export default function Controls({
   sensitivity,
   onSensitivityChange,
+  onSensitivityCommit,
   processedImage,
   onNewImage,
 }) {
@@ -56,6 +57,8 @@ export default function Controls({
             step="0.05"
             value={sensitivity}
             onChange={(e) => onSensitivityChange(parseFloat(e.target.value))}
+            onMouseUp={(e) => onSensitivityCommit(parseFloat(e.target.value))}
+            onTouchEnd={(e) => onSensitivityCommit(parseFloat(e.target.value))}
             className="slider"
           />
           <span className="slider-label">Fine</span>

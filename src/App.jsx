@@ -9,6 +9,7 @@ export default function App() {
   const [processedImage, setProcessedImage] = useState(null);
   const [sensitivity, setSensitivity] = useState(0.5);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState({ stage: "", pct: 0 });
 
   const handleImageUpload = async (file) => {
     const reader = new FileReader();
@@ -18,8 +19,11 @@ export default function App() {
     reader.readAsDataURL(file);
   };
 
-  const handleSensitivityChange = async (value) => {
+  const handleSensitivityChange = (value) => {
     setSensitivity(value);
+  };
+
+  const handleSensitivityCommit = async (value) => {
     if (originalImage) {
       await applyProcessing(originalImage, value);
     }
@@ -27,14 +31,16 @@ export default function App() {
 
   const applyProcessing = async (image, sens) => {
     setIsProcessing(true);
+    setProgress({ stage: "Starting...", pct: 0 });
     try {
-      const processed = await processImage(image, sens);
+      const processed = await processImage(image, sens, (p) => setProgress(p));
       setProcessedImage(processed);
     } catch (error) {
       console.error("Error processing image:", error);
       alert("Processing failed. The AI model (~17MB) needs to download on first use — check your internet connection.");
     } finally {
       setIsProcessing(false);
+      setProgress({ stage: "", pct: 0 });
     }
   };
 
@@ -76,10 +82,12 @@ export default function App() {
               original={originalImage}
               processed={processedImage}
               isProcessing={isProcessing}
+              progress={progress}
             />
             <Controls
               sensitivity={sensitivity}
               onSensitivityChange={handleSensitivityChange}
+              onSensitivityCommit={handleSensitivityCommit}
               processedImage={processedImage}
               onNewImage={() => {
                 setOriginalImage(null);
