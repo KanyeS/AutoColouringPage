@@ -1,0 +1,25 @@
+{
+  "name": "autocolouringpage",
+  "version": "1.0.0",
+  "description": "Convert colored images into coloring pages",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "onnxruntime-web": "^1.26.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite": "^8.0.11"
+  },
+  "devDependencies": {
+    "jimp": "^1.6.1"
+  }
+}
