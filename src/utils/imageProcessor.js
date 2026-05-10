@@ -34,15 +34,16 @@ async function fetchModelWithProgress(onProgress) {
 function getSession(onProgress) {
   if (!sessionPromise) {
     ort.env.wasm.proxy = false;
+    const providers = navigator.gpu ? ["webgpu", "wasm"] : ["wasm"];
     if (onProgress) {
       sessionPromise = fetchModelWithProgress(onProgress).then((buffer) => {
         onProgress(100);
         modelReady = true;
-        return ort.InferenceSession.create(buffer, { executionProviders: ["wasm"] });
+        return ort.InferenceSession.create(buffer, { executionProviders: providers });
       });
     } else {
       sessionPromise = ort.InferenceSession.create(MODEL_URL, {
-        executionProviders: ["wasm"],
+        executionProviders: providers,
       }).then((s) => { modelReady = true; return s; });
     }
   }
@@ -71,7 +72,8 @@ export async function processImage(imageSrc, sensitivity, onProgress) {
       try {
         let width = img.width;
         let height = img.height;
-        const maxDim = 2048;
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        const maxDim = isMobile ? 768 : 1280;
         if (width > maxDim || height > maxDim) {
           const scale = Math.min(maxDim / width, maxDim / height);
           width = Math.round(width * scale);
@@ -124,8 +126,9 @@ export async function processImage(imageSrc, sensitivity, onProgress) {
 // Split image into overlapping 512x512 tiles, run inference on each,
 // blend overlaps with a linear weight ramp so seams are invisible
 async function tiledInference(session, ctx, width, height, onProgress) {
-  const TILE = 512;
-  const OVERLAP = 64; // overlap on each edge to avoid hard seams
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const TILE = isMobile ? 512 : 768;
+  const OVERLAP = 64;
   const STEP = TILE - OVERLAP * 2;
 
   const output = new Float32Array(width * height);
